@@ -1,3 +1,5 @@
+import sqlite3
+
 from aiogram.filters import BaseFilter, Filter
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
@@ -31,6 +33,20 @@ async def cancel(msg: Message, state: FSMContext, lastState, text: str, markup, 
 
     await state.set_state(lastState)
     await msg.answer(text, parse_mode=parse_mode, reply_markup=markup)
+
+async def get_available_classes(schedule_name: str) -> list[str]:
+    """
+    :param schedule_name: Название базы данных с расписание (Пример: first_schedule)
+    :return: Возвращает список существующих классов (Пример: ['5а', '5б', '6а', '6б'])
+    """
+
+    connection = sqlite3.connect(f'schedules/database_schedule/{schedule_name}.sqlite3')
+    cursor = connection.execute('SELECT * FROM schedule')
+
+    shift_available_classes = [description[0]for description in cursor.description]
+    shift_available_classes.remove('Звонки')
+
+    return shift_available_classes
 
 # async def filter_themes(theme: str) -> list: # Основной
 #     if theme == 'Вопросы по учёбе':

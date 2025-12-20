@@ -160,15 +160,15 @@ async def export_second_shift():
 
 
 if __name__ == '__main__':
-    # try:
+    try:
         asyncio.run(export_first_shift())
         asyncio.run(export_second_shift())
 
         print(fontstyle.apply('[+] Расписание успешно обновлено!', 'bold/Italic/green'))
 
-        time.sleep(2)
+        time.sleep(3)
 
-    # except Exception as ex:
-    #     print(fontstyle.apply(f'[Error] {ex}', "'bold/Italic/red'"))
+    except Exception as ex:
+        print(fontstyle.apply(f'[Error] {ex}', "'bold/Italic/red'"))
 
-    #     time.sleep(5)
+        time.sleep(5)

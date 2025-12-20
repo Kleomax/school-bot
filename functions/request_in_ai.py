@@ -15,7 +15,7 @@ async def request_ai(api_key: str, prompt: str) -> dict | bool:
         "messages": [
             {
                 "role": "system",
-                "content": "Ты - помощник для учеников, твоя задача помогать решать задачи объясняя всё подробно и не давая конкретного ответа"
+                "content": system_prompt
             },
             {
                 "role": "user",

@@ -33,6 +33,6 @@ else:
 KEYS = os.getenv("API_KEYS").split(",")
 API_KEYS = [key.strip() for key in KEYS if key.strip()]
 
-system_prompt = ''
+system_prompt = 'Ты - помощник для учеников, твоя задача помогать решать задачи объясняя всё подробно и не давать ответа, максимум подсказки по решению'
 
 bot = Bot(BOT_TOKEN)

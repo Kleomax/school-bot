@@ -1,18 +1,15 @@
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, FSInputFile
-from aiogram.filters import Command
+from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 
 
 from database import UsersRequests
-
 from markups import BackBtn, MainMenu
-
 from functions import request_ai
-
 from states import HomeworkQuestion
 
 from config import API_KEYS
+
 
 router = Router()
 
@@ -36,36 +33,44 @@ async def back(msg: Message, state: FSMContext):
 
 @router.message(HomeworkQuestion.get_question, F.text)
 async def request_prompt(msg: Message):
-    await msg.answer("Вопрос отправлен! Ожидайте ответа...", reply_markup=ReplyKeyboardRemove())
+    # await msg.answer("Вопрос отправлен! Ожидайте ответа...", reply_markup=ReplyKeyboardRemove())
 
-    prompt = msg.text.strip()
+    # prompt = msg.text.strip()
 
-    for index, api_key in enumerate(API_KEYS, start=1):
-        json_data = await request_ai(api_key=api_key, prompt=prompt)
+    # for index, api_key in enumerate(API_KEYS, start=1):
+    #     json_data = await request_ai(api_key=api_key, prompt=prompt)
 
-        if json_data != False:
-            with open("key_info.txt", "+w", encoding="UTF-8") as file:
-                file.write(f"Рабочий токен - {index}\n\n{api_key}")
+    #     if json_data != False:
+    #         with open("key_info.txt", "+w", encoding="UTF-8") as file:
+    #             file.write(f"Рабочий токен - {index}\n\n{api_key}")
                 
-            break
+    #         break
 
-    ai_answer: str = json_data['choices'][0]['message']['content'].replace("*", "")
+    # ai_answer: str = json_data['choices'][0]['message']['content'].replace("*", "")
     
-    ai_answer = ai_answer.split("</think>")
+    # ai_answer = ai_answer.split("</think>")
 
-    if len(ai_answer) == 3:
-        ai_answer = ai_answer[2]
-    elif len(ai_answer) == 2:
-        ai_answer = ai_answer[1]
+    # if len(ai_answer) == 3:
+    #     ai_answer = ai_answer[2]
+    # elif len(ai_answer) == 2:
+    #     ai_answer = ai_answer[1]
 
-    # prompt_tokens = json_data['usage']["prompt_tokens"]
-    # completion_tokens = json_data['usage']['completion_tokens']
-    total_tokens = json_data['usage']['total_tokens']
+    # # prompt_tokens = json_data['usage']["prompt_tokens"]
+    # # completion_tokens = json_data['usage']['completion_tokens']
+    # total_tokens = json_data['usage']['total_tokens']
 
 
-    if len(ai_answer) > 4096:
-        for x in range(0, len(ai_answer), 4096):
-            await msg.answer(f"{ai_answer[x:x+4096]}", parse_mode=None, reply_markup=BackBtn)
-    else:
-        await msg.answer(f"{ai_answer}", parse_mode=None, reply_markup=BackBtn)
+    # if len(ai_answer) > 4096:
+    #     for x in range(0, len(ai_answer), 4096):
+    #         await msg.answer(f"{ai_answer[x:x+4096]}", parse_mode=None, reply_markup=BackBtn)
+    # else:
+    #     await msg.answer(f"{ai_answer}", parse_mode=None, reply_markup=BackBtn)
+
+    await msg.answer("""Из 1000 лампочек 5 бракованных, значит исправных: 1000 - 5 = 995. Вероятность купить исправную лампочку (при выборе наугад) - это отношение исправных ко всем лампочкам:
+
+P (исправная) = 995 / 1000
+
+Упростим дробь (разделив числитель и знаменатель на 5): 199 / 200.
+
+Ответ: Вероятность составляет 199/200 (или 0.995, или 99.5 %).""")
 

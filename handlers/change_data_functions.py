@@ -11,23 +11,12 @@ from markups import MainMenu, ChooseStartShift, ChooseShift, BackBtn
 
 from database import UsersRequests
 
+from functions import get_available_classes
 
 router = Router()
 
 available_shift = ['1 смена', '2 смена']
 
-first_connection = sqlite3.connect('schedules/database_schedule/first_schedule.sqlite3')
-first_cursor = first_connection.execute('SELECT * FROM schedule')
-
-first_shift_available_classes = [description[0] for description in first_cursor.description]
-first_shift_available_classes.remove('Звонки')
-
-
-second_connection = sqlite3.connect('schedules/database_schedule/second_schedule.sqlite3')
-second_cursor = second_connection.execute('SELECT * FROM schedule')
-
-second_shift_available_classes = [description[0] for description in second_cursor.description]
-second_shift_available_classes.remove('Звонки')
 
 
 
@@ -63,6 +52,9 @@ async def getShift(msg: Message, state: FSMContext):
 @router.message(SetShiftAndClass.choosing_class_name)
 async def getClass(msg: Message, state: FSMContext):
     
+    first_shift_available_classes = await get_available_classes("first_schedule")
+    second_shift_available_classes = await get_available_classes("second_schedule")
+
     try:
         data = await state.get_data()
 
@@ -124,8 +116,11 @@ async def getClass(msg: Message, state: FSMContext):
 
 @router.message(SetShiftAndClass.change_class_name)
 async def getClass(msg: Message, state: FSMContext):
-    try:
 
+    first_shift_available_classes = await get_available_classes("first_schedule")
+    second_shift_available_classes = await get_available_classes("second_schedule")
+
+    try:
         user_class = await UsersRequests.get_class(user_id=msg.from_user.id)
 
         if msg.text == '↩️ Назад':
