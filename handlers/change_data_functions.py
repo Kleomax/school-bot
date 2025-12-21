@@ -49,9 +49,12 @@ async def getShift(msg: Message, state: FSMContext):
         
         await state.set_state(SetShiftAndClass.choosing_class_name)
 
+    await UsersRequests.update_last_activity(user_id=msg.from_user.id)
+
+
 @router.message(SetShiftAndClass.choosing_class_name)
 async def getClass(msg: Message, state: FSMContext):
-    
+
     first_shift_available_classes = await get_available_classes("first_schedule")
     second_shift_available_classes = await get_available_classes("second_schedule")
 
@@ -70,10 +73,20 @@ async def getClass(msg: Message, state: FSMContext):
 
         elif data['user_shift'] == '1 смена':
             if (msg.content_type != ContentType.TEXT) or (msg.text.lower() not in first_shift_available_classes):
-                await msg.answer('❗ Данного класса в 1 смене не существует. Пожалуйста, введите название класса заново')
-                
+                available_classes = ""
+                class_number = "1"
+
+                for available_class in first_shift_available_classes:
+                    if class_number != available_class[:-1]:
+                        class_number = available_class[:-1]
+                        available_classes += f"\n\n{available_class}       "
+                    else:
+                        available_classes += f"{available_class}       "
+
+                await msg.answer(f'❗ Данного класса в 1 смене не существует. Пожалуйста, введите название класса заново\n\nДоступный список классов 1 смены:\n{available_classes}')
+
                 return
-            
+
             else:
                 user_class = msg.text.lower()
 
@@ -85,16 +98,25 @@ async def getClass(msg: Message, state: FSMContext):
                 await UsersRequests.update_user_shift(user_id=msg.from_user.id, user_shift=data["user_shift"])
                 await UsersRequests.update_user_class(user_id=msg.from_user.id, user_class=user_class)
                 await UsersRequests.update_signup(user_id=msg.from_user.id, signup="done")
-                await UsersRequests.unblock_user(user_id=msg.from_user.id, activity="active")
 
                 await state.clear()
                 return
 
         elif data['user_shift'] == '2 смена':
             if (msg.content_type != ContentType.TEXT) or (msg.text.lower() not in second_shift_available_classes):
-                await msg.answer('❗ Данного класса во 2 смене не существует. Пожалуйста, введите название класса заново')
+                available_classes = ""
+                class_number = "1"
+
+                for available_class in second_shift_available_classes:
+                    if class_number != available_class[:-1]:
+                        class_number = available_class[:-1]
+                        available_classes += f"\n\n{available_class}       "
+                    else:
+                        available_classes += f"{available_class}       "
+
+                await msg.answer(f'❗ Данного класса во 2 смене не существует. Пожалуйста, введите название класса заново\n\nДоступный список классов 2 смены:\n{available_classes}')
                 return
-            
+
             else:
                 user_class = msg.text.lower()
 
@@ -106,7 +128,6 @@ async def getClass(msg: Message, state: FSMContext):
                 await UsersRequests.update_user_shift(user_id=msg.from_user.id, user_shift=data["user_shift"])
                 await UsersRequests.update_user_class(user_id=msg.from_user.id, user_class=user_class)
                 await UsersRequests.update_signup(user_id=msg.from_user.id, signup="done")
-                await UsersRequests.unblock_user(user_id=msg.from_user.id, activity="active")
 
                 await state.clear()
                 return
@@ -131,7 +152,17 @@ async def getClass(msg: Message, state: FSMContext):
 
         elif await UsersRequests.get_shift(user_id=msg.from_user.id) == "1 смена":
             if (msg.content_type != ContentType.TEXT) or (msg.text.lower() not in first_shift_available_classes):
-                await msg.answer('❗ Данного класса в 1 смене не существует. Пожалуйста, введите название класса заново')
+                available_classes = ""
+                class_number = "1"
+
+                for available_class in first_shift_available_classes:
+                    if class_number != available_class[:-1]:
+                        class_number = available_class[:-1]
+                        available_classes += f"\n\n{available_class}       "
+                    else:
+                        available_classes += f"{available_class}       "
+
+                await msg.answer(f'❗ Данного класса в 1 смене не существует. Пожалуйста, введите название класса заново\n\nДоступный список классов 1 смены:\n{available_classes}')
                 return
             
             else:
@@ -139,7 +170,7 @@ async def getClass(msg: Message, state: FSMContext):
 
                 await UsersRequests.update_user_class(user_id=msg.from_user.id, user_class=user_class)
                 await UsersRequests.update_signup(user_id=msg.from_user.id, signup="done")
-                await UsersRequests.update_activity(user_id=msg.from_user.id, activity="active")
+                await UsersRequests.update_activity(user_id=msg.from_user.id, activity=True)
 
                 await msg.answer('✅ Данные успешно изменены!', reply_markup=MainMenu(msg.from_user.id, user_class))
 
@@ -149,7 +180,17 @@ async def getClass(msg: Message, state: FSMContext):
 
         elif await UsersRequests.get_shift(msg.from_user.id) == '2 смена':
             if (msg.content_type != ContentType.TEXT) or (msg.text.lower() not in second_shift_available_classes):
-                await msg.answer('❗ Данного класса во 2 смене не существует. Пожалуйста, введите название класса заново')
+                available_classes = ""
+                class_number = "1"
+
+                for available_class in second_shift_available_classes:
+                    if class_number != available_class[:-1]:
+                        class_number = available_class[:-1]
+                        available_classes += f"\n\n{available_class}       "
+                    else:
+                        available_classes += f"{available_class}       "
+
+                await msg.answer(f'❗ Данного класса во 2 смене не существует. Пожалуйста, введите название класса заново\n\nДоступный список классов 2 смены:\n{available_classes}')
                 return
             
             else:
@@ -157,7 +198,7 @@ async def getClass(msg: Message, state: FSMContext):
 
                 await UsersRequests.update_user_class(user_id=msg.from_user.id, user_class=user_class)
                 await UsersRequests.update_signup(user_id=msg.from_user.id, signup="done")
-                await UsersRequests.update_activity(user_id=msg.from_user.id, activity="active")
+                await UsersRequests.update_activity(user_id=msg.from_user.id, activity=True)
 
                 await msg.answer('✅ Данные успешно изменены!', reply_markup=MainMenu(msg.from_user.id, user_class))
 
@@ -165,4 +206,6 @@ async def getClass(msg: Message, state: FSMContext):
                 return
 
     except TypeError:
-        await msg.answer('Неверный тип данных.\nВведите название класса заново')        
+        await msg.answer('Неверный тип данных.\nВведите название класса заново')    
+
+    await UsersRequests.update_last_activity(user_id=msg.from_user.id)

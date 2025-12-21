@@ -42,6 +42,7 @@ async def write_answer(msg: Message, state: FSMContext):
     else:
         await msg.answer('Не понимаю вас. Пожалуйста, используйте клавиатуру ниже👇', reply_markup=CreateReply)
 
+
 @router.message(AnswerQuestion.block_user)
 async def block_user(msg: Message, state: FSMContext):
 
@@ -52,7 +53,7 @@ async def block_user(msg: Message, state: FSMContext):
         data = await state.get_data()
 
         await UsersRequests.block_user(data["user_id"])
-        await UsersRequests.update_activity(data["user_id"], "inactive")
+        await UsersRequests.update_activity(data["user_id"], False)
         await QuestionsRequests.delete_question(int(data['user_id']), theme=data['theme'], qtn=data['qtn'], photo=data['media'])
 
         await bot.send_message(data["user_id"], "К сожалению, вы были заблокированы. С этого момента вы не сможете пользоваться данным ботом 😔", reply_markup=ReplyKeyboardRemove())
@@ -70,6 +71,7 @@ async def block_user(msg: Message, state: FSMContext):
         all_questions: list = await QuestionsRequests.get_all_questions()
 
         await get_question(all_questions, state, msg)
+
 
 @router.message(AnswerQuestion.get_admin_answer) 
 async def send_answer(msg: Message, state: FSMContext):
@@ -90,6 +92,7 @@ async def send_answer(msg: Message, state: FSMContext):
         await msg.answer('Теперь отправьте 1 фото или 1 видео 🖼', reply_markup=SkipBtn)
         
         await state.set_state(AnswerQuestion.get_admin_photo)
+
 
 @router.message(AnswerQuestion.get_admin_photo)
 async def send_photo(msg: Message, state: FSMContext):
@@ -125,6 +128,7 @@ async def send_photo(msg: Message, state: FSMContext):
         await msg.answer('<I><U>*Ответ сформирован*</U></I>\n\nЧтобы его отправить, нажмите кнопку ниже', parse_mode=ParseMode.HTML, reply_markup=Confirmation)
         
         await state.set_state(AnswerQuestion.get_confirmation)
+
 
 @router.message(AnswerQuestion.get_confirmation)
 async def get_answer_confirmation(msg: Message, state: FSMContext):

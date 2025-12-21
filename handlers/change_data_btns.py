@@ -31,15 +31,17 @@ async def start(msg: Message, state: FSMContext):
 
         await msg.answer('Вы уже зарегистрированы', reply_markup=MainMenu(msg.from_user.id, user_class))
 
+    await UsersRequests.update_last_activity(user_id=msg.from_user.id)
+
 @router.message(F.text == '📌 Изменить смену')
 async def change_shift(msg: Message, state: FSMContext):
     if await UsersRequests.check_user_exists(msg.from_user.id):
-
         await msg.answer('Выберите вашу смену 👇', reply_markup=ChooseShift)
-
         await UsersRequests.update_signup(user_id=msg.from_user.id, signup="SetShift")
 
         await state.set_state(SetShiftAndClass.choosing_shift)
+
+    await UsersRequests.update_last_activity(user_id=msg.from_user.id)
 
 
 @router.message(F.text == '🖋️ Изменить класс')
@@ -49,6 +51,8 @@ async def change_class(msg: Message, state: FSMContext):
         await msg.answer('Введите ваш класс ✏️\n\n<B><I>Пример: 5а</I></B>', reply_markup=BackBtn, parse_mode=ParseMode.HTML)
         
         await UsersRequests.update_signup(user_id=msg.from_user.id, signup="ChangeClass")
+
+    await UsersRequests.update_last_activity(user_id=msg.from_user.id)
 
     # Устанавливаем пользователю состояние "вводит название класса"
     await state.set_state(SetShiftAndClass.change_class_name)

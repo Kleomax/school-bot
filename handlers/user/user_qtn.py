@@ -6,7 +6,7 @@ from aiogram.types import Message, ContentType, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.enums.parse_mode import ParseMode
 
-from config import bot, ProductionMode
+from config import bot, admins_list
 
 from functions.mixed_fns import cancel
 
@@ -25,6 +25,8 @@ async def create_question(msg: Message, state: FSMContext):
     await msg.answer('<I>Выберите тему вопроса 👇</I>', parse_mode=ParseMode.HTML, reply_markup=ChooseTheme())
 
     await state.set_state(AskQuestion.get_question_theme)
+
+    await UsersRequests.update_last_activity(user_id=msg.from_user.id)
 
 
 @router.callback_query(AskQuestion.get_question_theme)
@@ -177,11 +179,6 @@ async def confirmation(msg: Message, state: FSMContext):
 
         # admins_list: list = await filter_themes(data['question_theme'])
 
-        if ProductionMode == True:
-            admins_list: list = [1224172892, 2028455524]
-        else:
-            admins_list: list = [1224172892]
-            
         
         for admin in admins_list:
             try:
@@ -208,3 +205,4 @@ async def confirmation(msg: Message, state: FSMContext):
 
     elif msg.text != ContentType.TEXT:
         await msg.answer('Неверный формат. Пожалуйста, используйте клавиатуру ниже 👇', reply_markup=Confirmation)
+

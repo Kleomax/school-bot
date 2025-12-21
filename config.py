@@ -17,8 +17,8 @@ if ProductionMode == True:
     PASSWORD = os.getenv("MAIN_PASSWORD")
     DB_NAME = os.getenv("MAIN_DB_NAME")
 
-    admins = os.getenv("MAIN_ADMINS", "").split(",")
-    admins_list = [int(admin.strip()) for admin in admins if admin.strip()]
+    admins_env = os.getenv("MAIN_ADMINS", "").split(",")
+    admins_list = [int(admin.strip()) for admin in admins_env if admin.strip()]
 
 else:
     BOT_TOKEN = os.getenv("TEST_BOT_TOKEN")
@@ -27,8 +27,8 @@ else:
     PASSWORD = os.getenv("TEST_PASSWORD")
     DB_NAME = os.getenv("TEST_DB_NAME")
 
-    admins = os.getenv("TEST_ADMINS", "").split(",")
-    admins_list = [int(admin.strip()) for admin in admins if admin.strip()]
+    admins_env = os.getenv("TEST_ADMINS", "").split(",")
+    admins_list = [int(admin.strip()) for admin in admins_env if admin.strip()]
 
 KEYS = os.getenv("API_KEYS").split(",")
 API_KEYS = [key.strip() for key in KEYS if key.strip()]

@@ -31,12 +31,16 @@ async def get_blocked_users(msg: Message):
     else:
         await msg.answer("Список заблокированных пользователей пуст")
 
+    await UsersRequests.update_last_activity(user_id=msg.from_user.id)
+
 @router.callback_query(F.data.startswith("unblock_"))
 async def unblock_user(call: CallbackQuery, state: FSMContext):
     await call.message.answer(f"Вы уверены, что хотите разблокировать пользователя <i><b>{call.data.split('unblock_')[1]}</b></i>?", parse_mode=ParseMode.HTML, reply_markup=BlockUser)
 
     await state.update_data(user = call.data.split("unblock_")[1])
     await state.set_state(Unblock.get_confirm)
+
+    await UsersRequests.update_last_activity(user_id=call.from_user.id)
 
 @router.message(Unblock.get_confirm)
 async def get_unblock_confirm(msg: Message, state: FSMContext):
@@ -51,12 +55,12 @@ async def get_unblock_confirm(msg: Message, state: FSMContext):
             await bot.send_message(user, "Вы были разблокированы! Теперь вы можете пользоваться ботом 😌", reply_markup=MainMenu(user, user_class))
             await msg.answer(f"Пользователь {user} успешно разблокирован ✅", reply_markup=MainMenu(msg.from_user.id, user_class))
             
-            await UsersRequests.unblock_user(user_id=int(user), activity="active")
+            await UsersRequests.unblock_user(user_id=int(user), activity=True)
 
         except (TelegramBadRequest, TelegramForbiddenError):
             await msg.answer(f"Пользователь {user} успешно разблокирован ✅, но он заблокировал бота, либо же его аккаунт был удалён", reply_markup=MainMenu(msg.from_user.id, user_class))
             
-            await UsersRequests.unblock_user(user_id=int(user), activity="inactive")
+            await UsersRequests.unblock_user(user_id=int(user), activity=False)
 
         await state.clear()
 

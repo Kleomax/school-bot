@@ -18,3 +18,5 @@ async def get_statics(msg: Message):
     activity_users: int = await UsersRequests.get_all_active_users()
 
     await msg.answer(f"Общее кол-во пользователей: {all_users}\nКол-во активных пользователей: {activity_users}")
+
+    await UsersRequests.update_last_activity(user_id=msg.from_user.id)

@@ -39,6 +39,8 @@ async def get_text(msg: Message, state: FSMContext):
     await msg.answer('<I>*Создание рассылки*</I>\n\nНиже отправьте текст рассылки', reply_markup=SkipBtn, parse_mode=ParseMode.HTML)
     await state.set_state(Sender.get_text)
 
+    await UsersRequests.update_last_activity(user_id=msg.from_user.id)
+
 @router.message(Sender.get_text)
 async def get_photo(msg: Message, state: FSMContext):
 
@@ -62,6 +64,7 @@ async def get_photo(msg: Message, state: FSMContext):
         
         await msg.answer('Теперь отправьте до 10 фотографий или видео', reply_markup=SkipBtn)
         await state.set_state(Sender.get_photo)
+
 
 router.message.middleware(SomeMiddleware())
 @router.message(Sender.get_photo)
@@ -139,6 +142,7 @@ async def handle_albums(message: Message, state: FSMContext, album: list[Message
         await message.reply('Неверный формат', reply_markup=SkipBtn)
         print(ex)
 
+
 @router.message(Sender.get_keyboard)
 async def get_keyboard_url(msg: Message, state: FSMContext):
     if msg.content_type != ContentType.TEXT:
@@ -184,6 +188,7 @@ async def get_keyboard_url(msg: Message, state: FSMContext):
             
             await state.set_state(Sender.confirmation)
 
+
 @router.message(Sender.get_url)
 async def get_confirmation(msg: Message, state: FSMContext):
 
@@ -226,6 +231,7 @@ async def get_confirmation(msg: Message, state: FSMContext):
                         parse_mode=ParseMode.HTML)
         
         await state.set_state(Sender.confirmation)
+
 
 
 @router.message(Sender.confirmation, F.text == '✅ Отправить')
@@ -272,27 +278,24 @@ async def start_mailing(msg: Message, state: FSMContext):
                     message = await bot.send_message(chat_id=user, text=f"<I>Последние новости школы 👀</I>\n\n{data['msg_text']}", parse_mode=ParseMode.HTML)
                     msgs += f"{message.message_id}/"
 
-            await UsersRequests.update_activity(user_id=user, activity="active")
+            await UsersRequests.update_activity(user_id=user, activity=True)
 
             successful_msgs += 1
 
         except aiogram.exceptions.TelegramForbiddenError as exc:
             print(fontstyle.apply(exc, 'bold/Italic/yellow'))
 
-            await UsersRequests.update_activity(user_id=user, activity="inactive")
+            await UsersRequests.update_activity(user_id=user, activity=False)
 
             time.sleep(0.1)
-            
             continue
 
         except aiogram.exceptions.TelegramBadRequest as exce:
             print(fontstyle.apply(exce, 'bold/Italic/yellow'))
 
-            await UsersRequests.update_activity(user_id=user, activity="inactive")
-
+            await UsersRequests.update_activity(user_id=user, activity=False)
 
             time.sleep(0.1)
-
             continue
 
         except aiogram.exceptions.TelegramRetryAfter as ex:
@@ -312,14 +315,16 @@ async def start_mailing(msg: Message, state: FSMContext):
     print(fontstyle.apply(f'[+] Кол-во отправленных сообщений: {successful_msgs}/{len(user_list)}', 'bold/Italic/green'))
     
     await msg.answer('✅ Сообщения отправлены!', reply_markup=MainMenu(msg.from_user.id, user_class))
-
     await msg.answer(f'<I>[+] Кол-во отправленных сообщений: {successful_msgs}/{len(user_list)}</I>', parse_mode=ParseMode.HTML, reply_markup=DeleteMailing())
-    await bot.send_message(chat_id=1224172892, text=f'<I>[+] Кол-во отправленных сообщений: {successful_msgs}/{len(user_list)}</I>', parse_mode=ParseMode.HTML)
-
+    
+    for admin in admins_list:
+        if admin != msg.from_user.id:
+            await bot.send_message(chat_id=admin, text=f'<I>[+] Кол-во отправленных сообщений: {successful_msgs}/{len(user_list)}</I>', parse_mode=ParseMode.HTML)
 
 
     await state.clear()
     await state.update_data(messages = message_ids)
+
 
 @router.message(Sender.confirmation, F.text == '\U0000274C Отменить')
 async def stop_mailing(msg: Message, state: FSMContext):
@@ -327,6 +332,7 @@ async def stop_mailing(msg: Message, state: FSMContext):
 
     await msg.answer('❌ Рассылка отменена', reply_markup=MainMenu(msg.from_user.id, user_class))
     await state.clear()
+
 
 @router.message(Sender.confirmation, F.text == '↩️ Назад')
 async def BackBtn(msg: Message, state: FSMContext):
@@ -339,7 +345,8 @@ async def BackBtn(msg: Message, state: FSMContext):
             await mixed_fns.cancel(msg=msg, state=state, lastState=Sender.get_photo, text='Отправьте до 10 фотографий или видео',markup=SkipBtn)
     else:
         await mixed_fns.cancel(msg=msg, state=state, lastState=Sender.get_keyboard, text='Введите текст для кнопки', markup=SkipBtn)
-        
+    
+
 @router.callback_query(F.data == 'delete_mailing')
 async def delete_mailing(call: CallbackQuery, state: FSMContext):
 
@@ -373,3 +380,5 @@ async def delete_mailing(call: CallbackQuery, state: FSMContext):
     await call.message.answer('✅ Рассылка успешно удалена')
 
     await state.clear()
+
+    await UsersRequests.update_last_activity(user_id=call.from_user.id)

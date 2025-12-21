@@ -28,6 +28,8 @@ async def choose_exam(msg: Message, state: FSMContext):
     else:
         await msg.answer("На данный момент расписание экзаменов неизвестно", reply_markup=MainMenu(msg.from_user.id, user_class))
 
+    await UsersRequests.update_last_activity(user_id=msg.from_user.id)
+
 @router.message(ExamInfo.send_exam_info)
 async def send_info(msg: Message, state: FSMContext):
 
@@ -54,3 +56,4 @@ async def send_info(msg: Message, state: FSMContext):
 
     else:
         await msg.answer('Не понимаю вас. Пожалуйста, используйте клавиатуру ниже 👇', reply_markup=ExamMenu(user_class))
+

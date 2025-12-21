@@ -67,6 +67,8 @@ async def get(msg: Message):
     cur.close()
     con.close()
 
+    await UsersRequests.update_last_activity(user_id=msg.from_user.id)
+
 @router.message(F.text == "📥 Скачать расписание")
 async def download_schedule(msg: Message):
 
@@ -82,4 +84,5 @@ async def download_schedule(msg: Message):
 
     await msg.answer_document(document=FSInputFile(path=schedule, filename='Расписание.png'), caption=f'Расписание {user_shift}')
 
+    await UsersRequests.update_last_activity(user_id=msg.from_user.id)
     

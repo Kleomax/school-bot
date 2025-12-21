@@ -20,6 +20,8 @@ async def idea_btn(msg: Message, state: FSMContext):
     
     await state.set_state(get_idea.wait_idea)
 
+    await UsersRequests.update_last_activity(user_id=msg.from_user.id)
+
 @router.message(get_idea.wait_idea)
 async def idea(msg: Message, state: FSMContext):
 
@@ -34,13 +36,13 @@ async def idea(msg: Message, state: FSMContext):
         password = "mncocrmakvlawjte" 
 
         subject = "Новая идея для бота"
-        reception_mail = "daniilbelkin8@gmail.com"
+        recipient_mail = "daniilbelkin8@gmail.com"
         input = f"User_id: {msg.from_user.id}\nUser_name: {msg.from_user.full_name}\nUser_nick: {msg.from_user.username}\n\nИдея: {msg.text}"
 
         await msg.answer('Отправляем вашу идею, пожалуйста подождите 📨')
 
         try:
-            send_email(login, password, subject, reception_mail, input)
+            send_email(login, password, subject, recipient_mail, input)
             
             await msg.answer('Идея успешно отправлена разработчику ✅', reply_markup=MainMenu(msg.from_user.id, user_class))
 

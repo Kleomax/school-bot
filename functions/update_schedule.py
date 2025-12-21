@@ -6,13 +6,6 @@ import fontstyle
 
 from openpyxl import load_workbook
 
-
-#    found_files = []
-#    for root, dirs, files in os.walk(directory):
-#        for file in files:
-#            if file.endswith(".xlsx"):
-#                found_files.append(os.path.join(root, file))
-
 async def export_first_shift():
 
     # Имя базы

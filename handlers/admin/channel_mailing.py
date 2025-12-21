@@ -32,7 +32,7 @@ router.channel_post.middleware(SomeMiddleware())
 @router.channel_post()
 async def get_message(msg: Message,  album: list[Message] = None):
 
-    user_list: list = await UsersRequests.get_all_users_id() # основной список
+    user_list: list = await UsersRequests.get_all_users_id()
 
     successful_msgs = 0
     msgs = []
@@ -59,7 +59,6 @@ async def get_message(msg: Message,  album: list[Message] = None):
                 file_id = msg1.video.file_id
                 media_group.add_video(media=file_id, parse_mode=ParseMode.HTML)
 
-            
 
             media_number += 1
 
@@ -71,7 +70,7 @@ async def get_message(msg: Message,  album: list[Message] = None):
                 await bot.send_message(user, f"<I>Последние новости школы 👇</I>", parse_mode=ParseMode.HTML)
                 await bot.forward_message(user, '-1002496699343', msg.message_id)
 
-            await UsersRequests.update_activity(user_id=user, activity="active")
+            await UsersRequests.update_activity(user_id=user, activity=True)
 
             msgs += f"{msg.message_id}/"
             successful_msgs += 1
@@ -79,7 +78,7 @@ async def get_message(msg: Message,  album: list[Message] = None):
         except aiogram.exceptions.TelegramForbiddenError as exc:
             print(fontstyle.apply(exc, 'bold/Italic/yellow'))
 
-            await UsersRequests.update_activity(user_id=user, activity="inactive")
+            await UsersRequests.update_activity(user_id=user, activity=False)
 
             time.sleep(0.1)
 
@@ -88,7 +87,7 @@ async def get_message(msg: Message,  album: list[Message] = None):
         except aiogram.exceptions.TelegramBadRequest as exce:
             print(fontstyle.apply(exce, 'bold/Italic/yellow'))
 
-            await UsersRequests.update_activity(user_id=user, activity="active")
+            await UsersRequests.update_activity(user_id=user, activity=True)
 
             time.sleep(0.1)
 
@@ -99,14 +98,7 @@ async def get_message(msg: Message,  album: list[Message] = None):
 
             return await get_message(msg)
             
-    if ProductionMode == True:
-        await bot.send_message(1224172892, 'Сообщения отправлены ✅', reply_markup=MainMenu(msg.from_user.id))
-        await bot.send_message(chat_id=1224172892, text=f'<I>[+] Кол-во отправленных сообщений: {successful_msgs}/{len(user_list)}</I>', parse_mode=ParseMode.HTML)
-
-        await bot.send_message(2028455524, 'Сообщения отправлены ✅', reply_markup=MainMenu(msg.from_user.id))
-        await bot.send_message(chat_id=2028455524, text=f'<I>[+] Кол-во отправленных сообщений: {successful_msgs}/{len(user_list)}</I>', parse_mode=ParseMode.HTML)
-    
-    else:
-        await bot.send_message(1224172892, 'Сообщения отправлены ✅', reply_markup=MainMenu(msg.from_user.id))
-        await bot.send_message(chat_id=1224172892, text=f'<I>[+] Кол-во отправленных сообщений: {successful_msgs}/{len(user_list)}</I>', parse_mode=ParseMode.HTML)
+    for admin in admins_list:
+        await bot.send_message(admin, 'Сообщения отправлены ✅', reply_markup=MainMenu(msg.from_user.id))
+        await bot.send_message(admin, f'<I>[+] Кол-во отправленных сообщений: {successful_msgs}/{len(user_list)}</I>', parse_mode=ParseMode.HTML)
 

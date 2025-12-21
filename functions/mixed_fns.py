@@ -23,7 +23,7 @@ class ChatTypeFilter(Filter):
 async def cancel(msg: Message, state: FSMContext, lastState, text: str, markup, parse_mode=None):
     """
     :param msg: объект Message
-    :param state: объект Fsmcontext
+    :param state: объект FSMContext
     :param lastState: состояние на которое нужно вернуться
     :param text: текст сообщения
     :param markup: markup

@@ -1,5 +1,4 @@
 import datetime
-from typing import Union
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import update, select, func
@@ -54,8 +53,9 @@ class UsersRequests:
                 user_shift=user_shift,
                 user_class=user_class,
                 signup="done",
-                activity="active",
-                blocked="unblocked"
+                activity=True,
+                blocked=False,
+                last_activity=datetime.datetime.now().date()
             )
 
             session.add(user)
@@ -179,7 +179,7 @@ class UsersRequests:
         )
 
         if user_exist:
-            query = update(UserDataModel).where(UserDataModel.user_id == user_id).values(activity="active", last_activity=datetime.datetime.now().date())
+            query = update(UserDataModel).where(UserDataModel.user_id == user_id).values(activity=True, last_activity=datetime.datetime.now().date())
 
             await session.execute(query)
 
@@ -198,7 +198,7 @@ class UsersRequests:
         )
 
         if user_exist:
-            query = update(UserDataModel).where(UserDataModel.user_id ==user_id).values(activity="inactive", blocked="blocked")
+            query = update(UserDataModel).where(UserDataModel.user_id ==user_id).values(activity=False, blocked=True)
 
             await session.execute(query)
 
@@ -218,7 +218,7 @@ class UsersRequests:
 
         if user_exist:
             query = update(UserDataModel).where(
-                UserDataModel.user_id == user_id).values(activity=activity, blocked="unblocked")
+                UserDataModel.user_id == user_id).values(activity=activity, blocked=False)
 
             await session.execute(query)
 
@@ -271,7 +271,7 @@ class UsersRequests:
     async def get_all_active_users(session: AsyncSession) -> int:
         """Возвращает общее кол-во пользователей у которых бот не заблокирован и аккаунт пользователя ещё существует"""
 
-        all_activity_users = await session.scalars(select(UserDataModel.user_id).where(UserDataModel.activity == "active"))
+        all_activity_users = await session.scalars(select(UserDataModel.user_id).where(UserDataModel.activity == True))
 
         return len(all_activity_users.all())
 
@@ -293,7 +293,7 @@ class UsersRequests:
 
         threshold_date = datetime.datetime.now() - datetime.timedelta(days=delta)
 
-        activity_users_in_delta = await session.scalars(select(UserDataModel).where(UserDataModel.activity == "active", (UserDataModel.last_activity >= threshold_date)))
+        activity_users_in_delta = await session.scalars(select(UserDataModel).where(UserDataModel.activity == True, (UserDataModel.last_activity >= threshold_date)))
 
         return len(activity_users_in_delta.all())
 
@@ -311,7 +311,7 @@ class UsersRequests:
     async def get_all_blocked_users(session: AsyncSession) -> list[int]:
         "Возвращает user_id заблокированных пользователей в виде списка\n\nПример: [123456779, 156262860, 122346267]"
 
-        blocked_users = await session.scalars(select(UserDataModel.user_id).where(UserDataModel.blocked == "blocked"))
+        blocked_users = await session.scalars(select(UserDataModel.user_id).where(UserDataModel.blocked == True))
 
         result = blocked_users.all()
 

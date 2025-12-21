@@ -16,4 +16,4 @@ class QuestionsModel(Base):
     photo: Mapped[str]
     nick: Mapped[str]
 
-    # created_at: Mapped[created_at]
+    created_at: Mapped[created_at]

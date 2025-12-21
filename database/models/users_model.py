@@ -14,8 +14,8 @@ class UserDataModel(Base):
     user_shift: Mapped[str]
     user_class: Mapped[str]
     signup: Mapped[str]
-    activity: Mapped[str]
-    blocked: Mapped[str]
+    activity: Mapped[bool]
+    blocked: Mapped[bool]
 
-    # last_activity = mapped_column(Date)
-    # created_at: Mapped[created_at]
+    last_activity = mapped_column(Date)
+    created_at: Mapped[created_at]
