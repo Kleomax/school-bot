@@ -34,7 +34,6 @@ class UsersRequests:
             session.add(user)
 
             await session.commit()
-            await session.close()
 
             return True
     
@@ -61,7 +60,6 @@ class UsersRequests:
             session.add(user)
 
             await session.commit()
-            await session.close()
 
             return True
 
@@ -91,7 +89,6 @@ class UsersRequests:
             return await session.scalar(select(UserDataModel).where(UserDataModel.id == user_id))
 
         await session.commit()
-        await session.close()
 
     @staticmethod
     @connection
@@ -106,9 +103,7 @@ class UsersRequests:
             query = update(UserDataModel).where(UserDataModel.user_id == user_id).values(user_shift=user_shift)
 
             await session.execute(query)
-
             await session.commit()
-            await session.close()
 
         return user_exist
 
@@ -125,9 +120,7 @@ class UsersRequests:
             query = update(UserDataModel).where(UserDataModel.user_id == user_id).values(user_class=user_class)
 
             await session.execute(query)
-
             await session.commit()
-            await session.close()
 
         return user_exist
 
@@ -144,9 +137,7 @@ class UsersRequests:
             query = update(UserDataModel).where(UserDataModel.user_id == user_id).values(signup=signup)
 
             await session.execute(query)
-
             await session.commit()
-            await session.close()
 
         return user_exist
 
@@ -163,9 +154,7 @@ class UsersRequests:
             query = update(UserDataModel).where(UserDataModel.user_id == user_id).values(activity=activity)
 
             await session.execute(query)
-
             await session.commit()
-            await session.close()
 
         return user_exist
 
@@ -182,9 +171,7 @@ class UsersRequests:
             query = update(UserDataModel).where(UserDataModel.user_id == user_id).values(activity=True, last_activity=datetime.datetime.now().date())
 
             await session.execute(query)
-
             await session.commit()
-            await session.close()
 
         return user_exist
 
@@ -201,9 +188,7 @@ class UsersRequests:
             query = update(UserDataModel).where(UserDataModel.user_id ==user_id).values(activity=False, blocked=True)
 
             await session.execute(query)
-
             await session.commit()
-            await session.close()
 
         return user_exist
 
@@ -221,9 +206,7 @@ class UsersRequests:
                 UserDataModel.user_id == user_id).values(activity=activity, blocked=False)
 
             await session.execute(query)
-
             await session.commit()
-            await session.close()
 
         return user_exist
 

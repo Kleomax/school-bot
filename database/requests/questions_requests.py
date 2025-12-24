@@ -1,8 +1,6 @@
-import datetime
-
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import update, select, func, delete
-from sqlalchemy.sql import exists
+from sqlalchemy import select, func, delete
+from sqlalchemy.orm import selectinload
 
 from ..database import async_engine, Base
 from ..models import QuestionsModel, UserDataModel
@@ -17,97 +15,87 @@ class QuestionsRequests:
             await conn.run_sync(Base.metadata.drop_all)
             await conn.run_sync(Base.metadata.create_all)
 
+
     @staticmethod
     @connection
-    async def add_question(session: AsyncSession, user_id: int, theme: str, question: str, nick: str, photo: str = "None") -> bool | None:
+    async def add_question(
+        session: AsyncSession,
+        user_id: int,
+        theme: str,
+        question: str,
+        nick: str,
+        photo: str = "None",
+    ) -> bool | None:
 
-        """Функция для добавление вопроса в базу данных
+        user = await session.scalar(select(UserDataModel).where(UserDataModel.user_id == user_id))
 
-        :param user_id: id пользователя
-        :param theme: тема вопроса
-        :param question: вопрос пользователя
-        :param nick: имя пользователя в telegram
-        :param photo: id прикреплённого фото к вопросу
+        if not user:
+            return None
 
-        """
 
-        user_exist = await session.scalar(
-            exists()
-            .where(UserDataModel.user_id == user_id)
-            .select()
+        question = QuestionsModel(
+            user=user,
+            theme=theme,
+            question=question,
+            photo=photo,
+            nick=nick,
         )
 
-        if user_exist:
-            question = QuestionsModel(
-                user_id=user_id,
-                theme=theme,
-                question=question,
-                photo=photo,
-                nick=nick,
-            )
+        session.add(question)
+        await session.commit()
 
-            session.add(question)
 
-            await session.commit()
-            await session.close()
+        return True
 
-            return True
 
     @staticmethod
     @connection
-    async def get_all_questions_by_theme(session: AsyncSession, theme: str) -> list:
+    async def get_all_questions_by_theme(session: AsyncSession, theme: str) -> list[QuestionsModel]:
         """
         Функция для получения всех вопросов по определённой теме из базы данных
 
         :param theme: тема вопроса
         """
 
-        all_questions_by_theme = await session.scalars(select(QuestionsModel).where(QuestionsModel.theme == theme))
-        result = all_questions_by_theme.all()
+        result = await session.scalars(
+            select(QuestionsModel)
+            .where(QuestionsModel.theme == theme)
+        )
 
-        await session.close()
-
-        return result
+        return result.all()
+        
 
     @staticmethod
     @connection
     async def get_all_questions(session: AsyncSession) -> list:
         """
-        Функция для получения всех вопросов из базы данных
+        Функция для получения вопроса (возвращает самый старый)
         """
 
-        all_questions= await session.scalar(select(QuestionsModel))
+        result = await session.scalar(select(QuestionsModel).options(selectinload(QuestionsModel.user)))
 
-        if all_questions != None:
-            result = [all_questions.user_id, all_questions.theme, all_questions.question, all_questions.photo, all_questions.nick] 
+        if result != None:
+            return [result.user.user_id, result.theme, result.question, result.photo, result.nick]
 
-            await session.close()
-
-            return result
 
     @staticmethod
     @connection
     async def count_all_questions(session: AsyncSession) -> int:
-        """Возвращает общее кол-во вопросов"""
+        return await session.scalar(select(func.count(QuestionsModel.id)))
 
-        all_questions= await session.scalar(func.count(QuestionsModel.id))
-
-        await session.close()
-
-        return all_questions
 
     @staticmethod
     @connection
-    async def delete_question(session: AsyncSession, user_id: int, theme: str, qtn: str, photo: str) -> None:
+    async def delete_question(session: AsyncSession,user_id: int,theme: str,qtn: str,photo: str) -> None:
         """Удаляет вопрос из базы данных"""
 
-        await session.execute(delete(QuestionsModel).where(
-                QuestionsModel.user_id == user_id,
+        await session.execute(delete(QuestionsModel)
+            .where(
                 QuestionsModel.theme == theme,
                 QuestionsModel.question == qtn,
-                QuestionsModel.photo == photo
+                QuestionsModel.photo == photo,
+                QuestionsModel.user.has(UserDataModel.user_id == user_id)
             )
         )
 
         await session.commit()
-        await session.close()
