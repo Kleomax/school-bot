@@ -5,7 +5,7 @@ from aiogram import Bot
 
 
 ProductionMode = False
-ExamsInfo = False
+ExamsInfo = True
 
 
 load_dotenv()

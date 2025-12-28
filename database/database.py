@@ -3,11 +3,6 @@ from sqlalchemy.orm import DeclarativeBase
 
 from config import USER, PASSWORD, HOST, DB_NAME
 
-# async_engine = create_async_engine(
-    # url=f"sqlite+aiosqlite:///bot.db",
-    # echo=True,
-# )
-
 async_engine = create_async_engine(
     url=f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}/{DB_NAME}",
     # echo=True,

@@ -119,7 +119,6 @@ async def handle_albums(message: Message, state: FSMContext, album: list[Message
             if data['msg_text'] != '':
                 await message.answer_media_group(data['media_group'])
             else: 
-                print(data['media_group'])
                 await message.answer_media_group(media=data['media_group'])
 
             await message.answer('*Сообщение для рассылки сформировано*\n\nЧтобы начать, нажмите кнопку ниже', reply_markup=Confirmation)

@@ -8,17 +8,15 @@ def ExamMenu(user_class: str):
         ],
     ]
 
+    exams = [KeyboardButton(text="ГВЭ 9-11 классы")]
+
     if user_class.startswith("9"):
-        keyboard_btns.insert(0, [
-            KeyboardButton(text="ГИА 9 классы"),
-            KeyboardButton(text="ГВЭ 9-11 классы")
-            ])
-        
+        exams.insert(0, KeyboardButton(text="ГИА 9 классы"))
     elif user_class.startswith("11"):
-        keyboard_btns.insert(0, [
-            KeyboardButton(text="ГИА 11 классы"),
-            KeyboardButton(text="ГВЭ 9-11 классы")
-        ])
+        exams.insert(0, KeyboardButton(text="ГИА 11 классы"))
+
+    keyboard_btns.insert(0, exams)
+
 
     keyboard = ReplyKeyboardMarkup(
         keyboard=keyboard_btns,

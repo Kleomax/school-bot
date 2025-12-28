@@ -44,7 +44,7 @@ def DeleteMailing():
 
     return btn.as_markup()
 
-def BlockedUsers(blocked_users: list[int]):
+def UnblockUser(blocked_users: list[int]):
     users = InlineKeyboardBuilder()
 
     for user in blocked_users:

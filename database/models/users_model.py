@@ -1,9 +1,14 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import BigInteger, Date
 
 from .dependencies import intpk, created_at
 
 from ..database import Base
+
+if TYPE_CHECKING:
+    from .questions_model import QuestionsModel
 
 
 class UserDataModel(Base):
@@ -20,6 +25,6 @@ class UserDataModel(Base):
     last_activity = mapped_column(Date)
     created_at: Mapped[created_at]
 
-    questions: Mapped[list["QuestionsModel"]] = relationship(
+    questions: Mapped[list["QuestionsModel"]] = relationship( 
         back_populates="user"
     )

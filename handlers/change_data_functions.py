@@ -131,6 +131,10 @@ async def getClass(msg: Message, state: FSMContext):
 
                 await state.clear()
                 return
+        else:
+            await msg.answer("Ошибка на сервере. Пожалуйста, попробуйте позже")
+
+            raise ValueError
 
     except TypeError:
         await msg.answer('Неверный тип данных.\nВведите название класса заново')

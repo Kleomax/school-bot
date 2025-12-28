@@ -34,23 +34,21 @@ async def choose_exam(msg: Message, state: FSMContext):
 async def send_info(msg: Message, state: FSMContext):
 
     user_class: str = await UsersRequests.get_class(user_id=msg.from_user.id)
+    
+    exams = {
+        "ГВЭ 9-11 классы": "ГВЭ 9-11",
+        "ГИА 9 классы": "ГИА 9",
+        "ГИА 11 классы": "ГИА 11"
+    }
 
     if msg.content_type != ContentType.TEXT:
         await msg.answer('Не понимаю вас. Пожалуйста, используйте клавиатуру ниже 👇', reply_markup=ExamMenu(user_class))
-    
-    elif msg.text == "ГВЭ 9-11 классы":
-        await msg.answer_document(FSInputFile("schedules/exam_schedule/Расписание ГВЭ 9-11.pdf"), caption="Расписание ГВЭ 9-11", reply_markup=MainMenu(msg.from_user.id, user_class))
+
+    elif msg.text in exams.keys():
+        await msg.answer_document(FSInputFile(f"schedules/exam_schedule/Расписание {exams.get(msg.text)}.pdf"), caption=f"Расписание {exams.get(msg.text)}", reply_markup=MainMenu(msg.from_user.id, user_class))
         await state.clear()
 
-    elif msg.text == "ГИА 9 классы":
-        await msg.answer_document(FSInputFile("schedules/exam_schedule/Расписание ГИА 9.pdf"), caption="Расписание ГИА 9", reply_markup=MainMenu(msg.from_user.id, user_class))
-        await state.clear()
-
-    elif msg.text == "ГИА 11 классы":
-        await msg.answer_document(FSInputFile("schedules/exam_schedule/Расписание ГИА 11.pdf"), caption="Расписание ГИА 11", reply_markup=MainMenu(msg.from_user.id, user_class))
-        await state.clear()
-
-    elif msg.text == "↩ Назад":
+    elif msg.text == "↩️ Назад":
         await msg.answer('🏠 Вы вернулись в главное меню 🏠', reply_markup=MainMenu(msg.from_user.id, user_class))
         await state.clear()
 

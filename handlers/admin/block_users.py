@@ -9,7 +9,7 @@ from functions.mixed_fns import IsAdmin, cancel
 
 from config import admins_list, bot
 
-from markups import BlockedUsers, MainMenu, BlockUser
+from markups import UnblockUser, MainMenu, BlockUser
 
 from database import UsersRequests  
 
@@ -27,7 +27,7 @@ async def get_blocked_users(msg: Message):
     blocked_users = await UsersRequests.get_all_blocked_users()
 
     if len(blocked_users) != 0:
-        await msg.answer("Выберите пользователя 👇", reply_markup=BlockedUsers(blocked_users))
+        await msg.answer("Выберите пользователя 👇", reply_markup=UnblockUser(blocked_users))
     else:
         await msg.answer("Список заблокированных пользователей пуст")
 
