@@ -1,0 +1,6 @@
+.env
+key_info.txt
+data.txt
+__pycache__
+.venv
+.vscode
